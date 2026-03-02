@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from routers import issues, comments
+from routers.issues import router as issues_router
+from routers.comments import router as comments_router
 
 # ─── Application ──────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -24,6 +25,9 @@ app = FastAPI(
 _origins = [
     os.getenv("FRONTEND_ORIGIN",     "http://localhost:5173"),
     os.getenv("FRONTEND_ORIGIN_ALT", "http://127.0.0.1:5173"),
+    # Vite sometimes auto-picks 8080 if 5173 is taken
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
 ]
 
 app.add_middleware(
@@ -35,8 +39,8 @@ app.add_middleware(
 )
 
 # ─── Routers ──────────────────────────────────────────────────────────────────
-app.include_router(issues.router)
-app.include_router(comments.router)
+app.include_router(issues_router)
+app.include_router(comments_router)
 
 
 # ─── Health Check ─────────────────────────────────────────────────────────────

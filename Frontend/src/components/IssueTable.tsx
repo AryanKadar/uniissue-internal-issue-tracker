@@ -10,12 +10,12 @@ interface IssueTableProps {
   onSelect: (issue: Issue) => void;
 }
 
-type SortKey = "id" | "title" | "project" | "priority" | "assignee" | "status" | "createdAt";
+type SortKey = "id" | "title" | "project" | "priority" | "assignee" | "status" | "created_at";
 
 const priorityOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
 export function IssueTable({ issues, onSelect }: IssueTableProps) {
-  const [sortKey, setSortKey] = useState<SortKey>("createdAt");
+  const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortAsc, setSortAsc] = useState(false);
 
   const toggleSort = (key: SortKey) => {
@@ -25,9 +25,17 @@ export function IssueTable({ issues, onSelect }: IssueTableProps) {
 
   const sorted = [...issues].sort((a, b) => {
     let cmp = 0;
-    if (sortKey === "priority") cmp = priorityOrder[a.priority] - priorityOrder[b.priority];
-    else if (sortKey === "createdAt") cmp = a.createdAt.getTime() - b.createdAt.getTime();
-    else cmp = String(a[sortKey]).localeCompare(String(b[sortKey]));
+    if (sortKey === "priority") {
+      cmp =
+        priorityOrder[a.priority as keyof typeof priorityOrder] -
+        priorityOrder[b.priority as keyof typeof priorityOrder];
+    } else if (sortKey === "created_at") {
+      cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    } else {
+      cmp = String(a[sortKey as keyof Issue]).localeCompare(
+        String(b[sortKey as keyof Issue])
+      );
+    }
     return sortAsc ? cmp : -cmp;
   });
 
@@ -61,7 +69,7 @@ export function IssueTable({ issues, onSelect }: IssueTableProps) {
             <TableHead className="text-muted-foreground"><SortHeader label="Priority" field="priority" /></TableHead>
             <TableHead className="text-muted-foreground hidden lg:table-cell"><SortHeader label="Assignee" field="assignee" /></TableHead>
             <TableHead className="text-muted-foreground"><SortHeader label="Status" field="status" /></TableHead>
-            <TableHead className="text-muted-foreground hidden lg:table-cell"><SortHeader label="Created" field="createdAt" /></TableHead>
+            <TableHead className="text-muted-foreground hidden lg:table-cell"><SortHeader label="Created" field="created_at" /></TableHead>
             <TableHead className="w-[50px]" />
           </TableRow>
         </TableHeader>
@@ -93,7 +101,9 @@ export function IssueTable({ issues, onSelect }: IssueTableProps) {
                   {issue.status}
                 </span>
               </TableCell>
-              <TableCell className="text-muted-foreground text-sm hidden lg:table-cell">{formatDate(issue.createdAt)}</TableCell>
+              <TableCell className="text-muted-foreground text-sm hidden lg:table-cell">
+                {formatDate(issue.created_at)}
+              </TableCell>
               <TableCell>
                 <Button variant="ghost" size="icon" className="w-7 h-7 text-muted-foreground hover:text-foreground" onClick={(e) => { e.stopPropagation(); onSelect(issue); }}>
                   <Eye className="w-3.5 h-3.5" />

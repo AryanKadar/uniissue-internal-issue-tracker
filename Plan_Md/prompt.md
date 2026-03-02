@@ -129,3 +129,13 @@ me to antigravity:
 
 logs.txt
   and before all that first give me commit message so that i can commit my save "
+  
+me to antigravity:
+  "make sure the frontend is run on 5173 and backend is run on 8000 and also make sure that when i run backend.bat and frontend.bat it kill all the esiting process so that backend is run on 8000 and frontend is run on 5173 and also make sure the terminal give clean and professinal message in terminal with color and symbol and banner and continue with above response "
+
+me to antigravity:
+  "can you run backend.bat and frontend.bat for me to check backend and frontend is working and also make sure the terminal for both frontend and backend show output is clean ,professinal manner with color and symbol  "
+
+me to cursor
+  "fix this issue @logs.txt 
+scan frontend ,scan backend scan database and fix this issue"

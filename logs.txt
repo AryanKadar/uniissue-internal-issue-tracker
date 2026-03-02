@@ -3,7 +3,58 @@ deprecations.ts:9  ⚠️ React Router Future Flag Warning: React Router will be
 warnOnce @ deprecations.ts:9
 deprecations.ts:9  ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
 warnOnce @ deprecations.ts:9
-:8000/api/issues:1   Failed to load resource: net::ERR_CONNECTION_REFUSED
+IssueTable.tsx:29  Uncaught TypeError: Cannot read properties of undefined (reading 'getTime')
+    at IssueTable.tsx:29:57
+    at Array.sort (<anonymous>)
+    at IssueTable (IssueTable.tsx:26:30)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback2 (react-dom.development.js:4164:14)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:16)
+    at invokeGuardedCallback (react-dom.development.js:4277:31)
+    at beginWork$1 (react-dom.development.js:27490:7)
+IssueTable.tsx:29  Uncaught TypeError: Cannot read properties of undefined (reading 'getTime')
+    at IssueTable.tsx:29:57
+    at Array.sort (<anonymous>)
+    at IssueTable (IssueTable.tsx:26:30)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback2 (react-dom.development.js:4164:14)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:16)
+    at invokeGuardedCallback (react-dom.development.js:4277:31)
+    at beginWork$1 (react-dom.development.js:27490:7)
+react-dom.development.js:18704  The above error occurred in the <IssueTable> component:
+
+    at IssueTable (http://localhost:5173/src/components/IssueTable.tsx:33:30)
+    at main
+    at div
+    at div
+    at Index (http://localhost:5173/src/pages/Index.tsx:37:87)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a9de8e6e:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a9de8e6e:4558:5)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a9de8e6e:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a9de8e6e:5247:5)
+    at Provider (http://localhost:5173/node_modules/.vite/deps/chunk-NQPBRYBM.js?v=a9de8e6e:58:15)
+    at TooltipProvider (http://localhost:5173/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a9de8e6e:56:5)
+    at QueryClientProvider (http://localhost:5173/node_modules/.vite/deps/@tanstack_react-query.js?v=a9de8e6e:2934:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ react-dom.development.js:18704
+react-dom.development.js:26962  Uncaught TypeError: Cannot read properties of undefined (reading 'getTime')
+    at IssueTable.tsx:29:57
+    at Array.sort (<anonymous>)
+    at IssueTable (IssueTable.tsx:26:30)
+    at renderWithHooks (react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (react-dom.development.js:20103:13)
+    at beginWork (react-dom.development.js:21626:16)
+    at beginWork$1 (react-dom.development.js:27465:14)
+    at performUnitOfWork (react-dom.development.js:26596:12)
+    at workLoopSync (react-dom.development.js:26505:5)
+    at renderRootSync (react-dom.development.js:26473:7)
 [NEW] Explain Console errors by using Copilot in Edge: click
          
          to explain an error. 
