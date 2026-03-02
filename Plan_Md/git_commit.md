@@ -40,13 +40,6 @@ Second Commit:
 - Add Plan_Md/PLAN_backend.md, PLAN_frontend_changes.md, PLAN_setup.md
 - Add Test/test_issues.py + Test/test_comments.py
 "
-Third Commit:
-Fourth Commit:
+Third Commit:"test: add full-stack connectivity check and fix issue date sorting"
+Fourth Commit:"refine top navbar by removing unused notification bell"
 Fifth Commit:
-Sixth Commit:
-Seventh Commit:
-Eighth Commit:
-Ninth Commit:
-Tenth Commit:
-Eleventh Commit:
-Twelfth Commit:

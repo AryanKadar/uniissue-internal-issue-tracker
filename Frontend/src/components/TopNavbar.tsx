@@ -1,4 +1,4 @@
-import { Search, Plus, Bell, Menu } from "lucide-react";
+import { Search, Plus, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -27,11 +27,11 @@ export function TopNavbar({ search, onSearchChange, onNewIssue, onMenuToggle }: 
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
-        <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
-        </Button>
-        <Button onClick={onNewIssue} size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 font-medium">
+        <Button
+          onClick={onNewIssue}
+          size="sm"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5 font-medium"
+        >
           <Plus className="w-4 h-4" />
           New Issue
         </Button>
