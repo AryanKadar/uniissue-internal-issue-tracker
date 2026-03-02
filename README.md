@@ -4,7 +4,7 @@ UniIssue is a full‑stack internal issue tracker built for a small consulting f
 
 ## Demo video
 
-- `2026-03-02 15-09-26.mp4` (included in this repo)
+- `Demo_video.mp4` (included in this repo)
 
 ## The problem (client brief)
 
@@ -148,7 +148,7 @@ Backend/   # FastAPI + DB models + migrations
 Frontend/  # React + TS UI
 Test/      # API + connectivity tests
 Plan_Md/   # architecture, prompts, planning docs
-2026-03-02 15-09-26.mp4  # demo video
+Demo_video.mp4  # demo video
 ```
 
 ## Notes

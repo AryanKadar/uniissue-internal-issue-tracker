@@ -25,7 +25,7 @@
 - **Plans & Docs** (`Plan_Md/`)
   - `ARCHITECTURE.md`, `PROMPTS.md`, `problem.md`, `git_commit.md`, and this `PLAN_github.md`
 - **Demo video**
-  - Root‑level file: `2026-03-02 15-09-26.mp4`  
+  - Root‑level file: `Demo_video.mp4`  
   - This must be **committed and pushed** with the rest of the code so the GitHub repo includes a full walkthrough of the app.
 
 ## Prerequisites
@@ -71,11 +71,11 @@ git remote set-url origin https://github.com/<your-username>/uniissue-internal-i
 ## Step 3 – Make Sure the Demo Video Is Tracked
 
 1. Confirm the video is **not ignored**:
-   - Root `.gitignore` does **not** exist, and frontend/backend `.gitignore` files only apply in their subfolders, so `2026-03-02 15-09-26.mp4` will be tracked.
+   - Root `.gitignore` does **not** exist, and frontend/backend `.gitignore` files only apply in their subfolders, so `Demo_video.mp4` will be tracked.
 2. Explicitly stage the video (to be safe):
 
 ```bash
-git add "2026-03-02 15-09-26.mp4"
+git add "Demo_video.mp4"
 ```
 
 3. Be aware that this file is large; pushing it is fine for this project demo, but for future projects consider Git LFS if videos become very big or frequent.
@@ -138,7 +138,7 @@ After pushing, open the repository page on GitHub and confirm:
 - **Docs**:
   - `Plan_Md/ARCHITECTURE.md`, `Plan_Md/problem.md`, `Plan_Md/PROMPTS.md`, `Plan_Md/git_commit.md`, and `Plan_Md/PLAN_github.md` are visible.
 - **Demo video**:
-  - `2026-03-02 15-09-26.mp4` appears in the root of the repo.
+  - `Demo_video.mp4` appears in the root of the repo.
 - **GitHub default branch** matches the branch you pushed (`main` or equivalent).
 
 ## Step 8 – Optional Polish on GitHub
@@ -163,7 +163,7 @@ UniIssue is a full‑stack internal issue tracker built for a small consulting f
 
 ## Demo video
 
-- `2026-03-02 15-09-26.mp4` (included in this repo)
+- `Demo_video.mp4` (included in this repo)
 
 ## The problem (client brief)
 
@@ -307,7 +307,7 @@ Backend/   # FastAPI + DB models + migrations
 Frontend/  # React + TS UI
 Test/      # API + connectivity tests
 Plan_Md/   # architecture, prompts, planning docs
-2026-03-02 15-09-26.mp4  # demo video
+Demo_video.mp4  # demo video
 ```
 
 ## Notes
