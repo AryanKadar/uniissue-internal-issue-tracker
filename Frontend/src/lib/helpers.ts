@@ -1,5 +1,5 @@
 import { formatDistanceToNow, format } from "date-fns";
-import type { Priority, Status, Issue } from "./data";
+import type { Priority, Status } from "./data";
 
 export const priorityColor = (p: Priority) => {
   const map: Record<Priority, string> = {
@@ -31,31 +31,15 @@ export const statusDotColor = (s: Status) => {
   return map[s];
 };
 
-export const relativeTime = (date: Date) => formatDistanceToNow(date, { addSuffix: true });
+/** Accepts an ISO 8601 string (from backend JSON) or a Date object */
+export const relativeTime = (date: string | Date) =>
+  formatDistanceToNow(typeof date === "string" ? new Date(date) : date, { addSuffix: true });
 
-export const formatDate = (date: Date) => format(date, "MMM d, yyyy");
+export const formatDate = (date: string | Date) =>
+  format(typeof date === "string" ? new Date(date) : date, "MMM d, yyyy");
 
 export const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase();
 
-export const exportToCSV = (issues: Issue[]) => {
-  const headers = ["ID", "Title", "Description", "Project", "Priority", "Assignee", "Status", "Created"];
-  const rows = issues.map((i) => [
-    i.id,
-    `"${i.title.replace(/"/g, '""')}"`,
-    `"${i.description.replace(/"/g, '""')}"`,
-    i.project,
-    i.priority,
-    i.assignee,
-    i.status,
-    formatDate(i.createdAt),
-  ]);
-  const csv = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `uniissue-export-${format(new Date(), "yyyy-MM-dd")}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
+// CSV export is now handled server-side via GET /api/export-csv
+// Use api.exportCSV() from @/lib/api instead.

@@ -71,117 +71,61 @@ Start by creating the full app structure with ChakraProvider, theme config, and 
 
 Make it look expensive and ready for a real company demo."
 
-me to grok:
-"now what prompt should i give to antigravity for plan md for backend and database pgadmin i already have table name unico and make sure the backend is in python fast api with frontend in 5173 port and backend in 8000 port with virtual enviornment for backend and make sure the frontend is run from base folder with frontend.bat and backend is run from base folder with backend.bat"
+from grok to antigravity:
+"create a detail plan md for my backend ,changes in existing frontend and creation of tables in unico database and problem is given in image above ,i have already created frontend so you have just make changes in frontend here is problem in plan md 
+prompt "You are an expert full-stack architect. 
 
-grok reply for backend :
+SCAN the entire current project (Frontend/, Backend/, Plan_Md/, Test/ folders, problem.md, and the dashboard screenshot in the workspace).
 
-"You are an expert full-stack architect. Create a complete professional PLAN.md (and also generate all the code files) for the BACKEND ONLY of "UniIssue" – the internal Issue Tracker for Unico Connect.
+TASK: Create a complete professional PLAN.md (and all code files) so the existing Lovable React frontend talks to a real FastAPI backend with PostgreSQL "unico" database.
 
-TECH STACK (strictly follow):
-- Python 3.11+
-- FastAPI (latest) with Uvicorn
-- SQLAlchemy 2.0 (async) + Alembic for migrations
-- PostgreSQL (use the existing local database named "unico" that the user already has in PgAdmin)
-- Pydantic v2 for models
-- python-dotenv for environment variables
-- CORS enabled for frontend running on http://localhost:5173
-- Run backend on port 8000
+STRICT REQUIREMENTS:
+• Backend folder → FastAPI + SQLAlchemy 2.0 (async) + Alembic + Pydantic v2
+• Use existing "unico" PostgreSQL database (public schema)
+• Create exactly 2 tables: issues + comments (UUID PK, proper relationships, timestamps)
+• Seed 15 realistic issues + 2-4 comments each via /api/seed
+• Full CRUD REST API on /api/issues and /api/issues/{id}/comments
+• Add /api/export-csv bonus
+• CORS for http://localhost:5173
+• Backend runs on port 8000
 
-PROJECT STRUCTURE (create exactly this):
-uniissue/
-├── backend/
-│   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py
-│   │   ├── core/
-│   │   │   ├── __init__.py
-│   │   │   ├── config.py
-│   │   │   └── database.py
-│   │   ├── models/
-│   │   │   ├── __init__.py
-│   │   │   ├── issue.py
-│   │   │   └── comment.py
-│   │   ├── schemas/
-│   │   │   ├── __init__.py
-│   │   │   ├── issue.py
-│   │   │   └── comment.py
-│   │   ├── crud/
-│   │   │   ├── __init__.py
-│   │   │   ├── issue.py
-│   │   │   └── comment.py
-│   │   ├── routers/
-│   │   │   ├── __init__.py
-│   │   │   ├── issues.py
-│   │   │   └── comments.py
-│   │   ├── utils/
-│   │   │   └── seed.py
-│   │   └── alembic/ (Alembic config will be generated)
-│   ├── .env.example
-│   ├── requirements.txt
-│   └── alembic.ini
-├── frontend/ (do NOT touch – user already has this from Lovable on port 5173)
-├── backend.bat
-├── frontend.bat
-├── ARCHITECTURE.md   ← generate full professional version
-├── PLAN.md           ← this is the main output I want first
-└── README.md
+• Update existing Frontend/ folder to use real API (axios/fetch) instead of local state
+• Keep Chakra UI dark theme exactly as it is
 
-DATABASE (use existing "unico" database in public schema):
-Create these two tables with proper relationships:
+FOLDERS (use these only):
+- Backend/ (all FastAPI code)
+- Frontend/ (modify existing)
+- Plan_Md/ (all PLAN files)
+- Test/ (create test files)
 
-1. issues table
-   - id: UUID primary key (default gen_random_uuid())
-   - title: varchar(255) NOT NULL
-   - description: text
-   - project: varchar(100) NOT NULL
-   - priority: varchar(20) NOT NULL (Low, Medium, High, Critical)
-   - assignee: varchar(100) NOT NULL
-   - status: varchar(20) NOT NULL DEFAULT 'Open' (Open, In Progress, Resolved, Closed)
-   - created_at: timestamptz DEFAULT now()
-   - updated_at: timestamptz DEFAULT now()
+OUTPUT FIRST:
+1. Plan_Md/PLAN_backend.md
+2. Plan_Md/PLAN_frontend_changes.md  
+3. Plan_Md/PLAN_setup.md (with .env placeholders, batch files, migration steps)
 
-2. comments table
-   - id: UUID primary key
-   - issue_id: UUID REFERENCES issues(id) ON DELETE CASCADE
-   - author: varchar(100) NOT NULL
-   - content: text NOT NULL
-   - created_at: timestamptz DEFAULT now()
+Then generate:
+• All backend files (models, schemas, crud, routers, main.py, seed.py, alembic)
+• Update necessary frontend files to connect to real backend
+• backend.bat + frontend.bat in root
+• .env.example with placeholders (DB password, etc.)
+• requirements.txt
+• Test files in Test/ folder
+• Update ARCHITECTURE.md and README.md
 
-Seed exactly 15 realistic issues + 2–4 comments each when running the seed script.
-
-REQUIRED REST API ENDPOINTS (all with proper validation, error handling, status codes):
-GET    /api/issues
-GET    /api/issues/{issue_id}
-POST   /api/issues
-PUT    /api/issues/{issue_id}          (for status change + full update)
-DELETE /api/issues/{issue_id}
-
-GET    /api/issues/{issue_id}/comments
-POST   /api/issues/{issue_id}/comments
-
-Also add:
-POST   /api/seed   (to run seeding)
-GET    /api/export-csv (bonus)
-
-All endpoints must have full Pydantic request/response models and server-side validation.
-
-Create these batch files (Windows .bat) in the root:
-1. backend.bat → activates virtual env, runs uvicorn on port 8000 with reload
-2. frontend.bat → cd frontend && npm run dev (port 5173)
-
-In PLAN.md include:
-- Full database schema diagram (text version)
-- Complete list of all API endpoints with method, path, request body, response
-- Folder structure explanation
-- How to set up virtual environment
-- How to run migration and seed
-- Environment variables needed (.env)
-- CORS configuration
+Include in every PLAN file:
+- Database schema (text diagram)
+- Full API list with request/response
+- Step-by-step setup (virtual env, migration, seed, run)
+- How data flows: DB → Backend → Frontend
 - What to improve with more time
 
-Generate everything step-by-step. First output the full PLAN.md content, then create all the actual code files in the correct folders.
+Generate everything clean, commented, production-ready and interview-friendly. Start now"
 
-Make it clean, production-ready, well-commented, and easy for an intern to understand and explain in an interview. Use meaningful names, proper typing, and follow FastAPI best practices.
+problem.md
+ "
 
-Start now."
+me to antigravity:
+"i got this error when i run backend @terminal:uvicorn and frontend run well @terminal:uvicorn and why frontend is not running no 5173 port 
+
+logs.txt
+  and before all that first give me commit message so that i can commit my save "

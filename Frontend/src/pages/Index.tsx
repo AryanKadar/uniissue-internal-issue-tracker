@@ -6,14 +6,16 @@ import { FilterBar, type Filters } from "@/components/FilterBar";
 import { IssueTable } from "@/components/IssueTable";
 import { NewIssueModal } from "@/components/NewIssueModal";
 import { IssueDetailModal } from "@/components/IssueDetailModal";
-import { SEED_ISSUES, PROJECTS } from "@/lib/data";
-import { exportToCSV } from "@/lib/helpers";
+import { PROJECTS } from "@/lib/data";
+import { api } from "@/lib/api";
+import { useIssues } from "@/hooks/useIssues";
 import type { Issue } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Download, FolderOpen } from "lucide-react";
+import { Download, FolderOpen, Loader2, AlertTriangle, RefreshCw } from "lucide-react";
 
 const Index = () => {
-  const [issues, setIssues] = useState<Issue[]>(SEED_ISSUES);
+  const { issues, loading, error, refetch, createIssue, updateIssue, addComment } = useIssues();
+
   const [activeView, setActiveView] = useState("dashboard");
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<Filters>({ project: "all", priority: "all", status: "all", assignee: "all" });
@@ -21,10 +23,10 @@ const Index = () => {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // ─── Client-side filtering (filter the already-fetched list) ──────────────
   const filtered = useMemo(() => {
     let result = issues;
 
-    // View-specific filtering
     if (activeView === "assignments") {
       result = result.filter((i) => i.assignee === "Aryan Sharma" || i.assignee === "Alice Johnson");
     }
@@ -36,18 +38,69 @@ const Index = () => {
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      result = result.filter((i) => i.title.toLowerCase().includes(q) || i.description.toLowerCase().includes(q));
+      result = result.filter(
+        (i) => i.title.toLowerCase().includes(q) || i.description.toLowerCase().includes(q)
+      );
     }
 
     return result;
   }, [issues, filters, search, activeView]);
 
-  const handleNewIssue = (issue: Issue) => setIssues((prev) => [issue, ...prev]);
+  // ─── Handlers ─────────────────────────────────────────────────────────────
 
-  const handleUpdateIssue = (updated: Issue) => {
-    setIssues((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
-    setSelectedIssue(updated);
+  const handleNewIssue = async (data: Omit<Issue, "id" | "created_at" | "updated_at" | "comments">) => {
+    await createIssue(data);
   };
+
+  const handleSaveStatus = async (id: string, status: string) => {
+    const updated = await updateIssue(id, { status });
+    if (updated && selectedIssue?.id === id) {
+      setSelectedIssue(updated);
+    }
+  };
+
+  const handleAddComment = async (issueId: string, data: { author: string; text: string }) => {
+    const ok = await addComment(issueId, data);
+    if (ok) {
+      // Sync the selectedIssue with the updated issues list
+      const refreshed = issues.find((i) => i.id === issueId);
+      if (refreshed) setSelectedIssue({ ...refreshed });
+    }
+  };
+
+  // ─── Loading / Error states ───────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm">Loading issues from database…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="glass-card p-8 max-w-md text-center space-y-4">
+          <AlertTriangle className="w-10 h-10 text-destructive mx-auto" />
+          <h2 className="text-lg font-semibold text-foreground">Backend Unreachable</h2>
+          <p className="text-sm text-muted-foreground">
+            Could not connect to <code className="text-primary">http://localhost:8000</code>.
+            Make sure the FastAPI server is running.
+          </p>
+          <Button onClick={refetch} className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Main Layout ──────────────────────────────────────────────────────────
 
   const renderContent = () => {
     if (activeView === "projects") {
@@ -57,8 +110,11 @@ const Index = () => {
             const count = issues.filter((i) => i.project === p).length;
             const openCount = issues.filter((i) => i.project === p && i.status === "Open").length;
             return (
-              <div key={p} className="glass-card p-6 animate-fade-in hover:border-primary/30 transition-colors cursor-pointer"
-                onClick={() => { setFilters({ ...filters, project: p }); setActiveView("dashboard"); }}>
+              <div
+                key={p}
+                className="glass-card p-6 animate-fade-in hover:border-primary/30 transition-colors cursor-pointer"
+                onClick={() => { setFilters({ ...filters, project: p }); setActiveView("dashboard"); }}
+              >
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <FolderOpen className="w-5 h-5 text-primary" />
@@ -80,7 +136,12 @@ const Index = () => {
         <StatusCards issues={issues} />
         <div className="flex flex-wrap items-center justify-between gap-3">
           <FilterBar filters={filters} onChange={setFilters} />
-          <Button variant="ghost" size="sm" onClick={() => exportToCSV(filtered)} className="text-muted-foreground hover:text-foreground gap-1.5 h-9">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => api.exportCSV()}
+            className="text-muted-foreground hover:text-foreground gap-1.5 h-9"
+          >
             <Download className="w-3.5 h-3.5" /> Export CSV
           </Button>
         </div>
@@ -115,7 +176,13 @@ const Index = () => {
       </div>
 
       <NewIssueModal open={newIssueOpen} onClose={() => setNewIssueOpen(false)} onSubmit={handleNewIssue} />
-      <IssueDetailModal issue={selectedIssue} open={!!selectedIssue} onClose={() => setSelectedIssue(null)} onUpdate={handleUpdateIssue} />
+      <IssueDetailModal
+        issue={selectedIssue}
+        open={!!selectedIssue}
+        onClose={() => setSelectedIssue(null)}
+        onSaveStatus={handleSaveStatus}
+        onAddComment={handleAddComment}
+      />
     </div>
   );
 };

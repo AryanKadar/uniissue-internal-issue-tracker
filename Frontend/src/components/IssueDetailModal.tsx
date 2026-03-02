@@ -3,46 +3,68 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { priorityColor, statusColor, relativeTime, formatDate, getInitials } from "@/lib/helpers";
+import { priorityColor, relativeTime, formatDate, getInitials } from "@/lib/helpers";
 import type { Issue, Status, Comment } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, FolderOpen, AlertTriangle, UserCircle, MessageSquare } from "lucide-react";
+import { Calendar, FolderOpen, AlertTriangle, UserCircle, MessageSquare, Loader2 } from "lucide-react";
 
 interface IssueDetailModalProps {
-  issue: Issue | null;
-  open: boolean;
-  onClose: () => void;
-  onUpdate: (issue: Issue) => void;
+  readonly issue: Issue | null;
+  readonly open: boolean;
+  readonly onClose: () => void;
+  readonly onSaveStatus: (id: string, status: string) => Promise<void>;
+  readonly onAddComment: (id: string, data: { author: string; text: string }) => Promise<boolean>;
 }
 
 const statuses: Status[] = ["Open", "In Progress", "Resolved", "Closed"];
 
-export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetailModalProps) {
+export function IssueDetailModal({
+  issue,
+  open,
+  onClose,
+  onSaveStatus,
+  onAddComment,
+}: IssueDetailModalProps) {
   const { toast } = useToast();
   const [status, setStatus] = useState<Status | "">("");
   const [comment, setComment] = useState("");
+  const [savingStatus, setSavingStatus] = useState(false);
+  const [postingComment, setPostingComment] = useState(false);
 
   if (!issue) return null;
 
-  const currentStatus = status || issue.status;
+  const currentStatus = (status || issue.status) as Status;
 
-  const handleSaveStatus = () => {
-    if (status && status !== issue.status) {
-      onUpdate({ ...issue, status });
+  const handleSaveStatus = async () => {
+    if (!status || status === issue.status) return;
+    setSavingStatus(true);
+    try {
+      await onSaveStatus(issue.id, status);
       toast({ title: "Status updated", description: `Changed to ${status}` });
+    } catch {
+      toast({ title: "Failed to update status", variant: "destructive" });
+    } finally {
+      setSavingStatus(false);
     }
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!comment.trim()) return;
-    const newComment: Comment = {
-      id: `c-${Date.now()}`,
-      author: "Aryan Sharma",
-      text: comment.trim(),
-      createdAt: new Date(),
-    };
-    onUpdate({ ...issue, comments: [...issue.comments, newComment] });
-    setComment("");
+    setPostingComment(true);
+    try {
+      const ok = await onAddComment(issue.id, {
+        author: "Aryan Sharma",
+        text: comment.trim(),
+      });
+      if (ok) {
+        setComment("");
+        toast({ title: "Comment posted" });
+      }
+    } catch {
+      toast({ title: "Failed to post comment", variant: "destructive" });
+    } finally {
+      setPostingComment(false);
+    }
   };
 
   return (
@@ -50,9 +72,9 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
       <DialogContent className="bg-card border-border max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-            <span className="font-mono">{issue.id}</span>
+            <span className="font-mono">{String(issue.id).slice(0, 8)}…</span>
             <span>•</span>
-            <span>{relativeTime(issue.createdAt)}</span>
+            <span>{relativeTime(issue.created_at)}</span>
           </div>
           <DialogTitle className="text-foreground text-xl leading-tight">{issue.title}</DialogTitle>
         </DialogHeader>
@@ -68,8 +90,13 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
             </SelectContent>
           </Select>
           {status && status !== issue.status && (
-            <Button size="sm" onClick={handleSaveStatus} className="bg-primary hover:bg-primary/90 text-primary-foreground h-9">
-              Save
+            <Button
+              size="sm"
+              onClick={handleSaveStatus}
+              disabled={savingStatus}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground h-9"
+            >
+              {savingStatus ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save"}
             </Button>
           )}
         </div>
@@ -83,9 +110,9 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
         <div className="grid grid-cols-2 gap-3 mt-4">
           {[
             { icon: FolderOpen, label: "Project", value: issue.project },
-            { icon: AlertTriangle, label: "Priority", value: issue.priority, badge: priorityColor(issue.priority) },
+            { icon: AlertTriangle, label: "Priority", value: issue.priority, badge: priorityColor(issue.priority as any) },
             { icon: UserCircle, label: "Assignee", value: issue.assignee },
-            { icon: Calendar, label: "Created", value: formatDate(issue.createdAt) },
+            { icon: Calendar, label: "Created", value: formatDate(issue.created_at) },
           ].map((item) => (
             <div key={item.label} className="glass-card p-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
@@ -93,7 +120,9 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
                 {item.label}
               </div>
               {item.badge ? (
-                <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full border ${item.badge}`}>{item.value}</span>
+                <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full border ${item.badge}`}>
+                  {item.value}
+                </span>
               ) : (
                 <p className="text-sm font-medium text-foreground">{item.value}</p>
               )}
@@ -105,11 +134,13 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
         <div className="mt-6">
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">Comments ({issue.comments.length})</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              Comments ({issue.comments.length})
+            </h3>
           </div>
 
           <div className="space-y-3">
-            {issue.comments.map((c) => (
+            {issue.comments.map((c: Comment) => (
               <div key={c.id} className="flex gap-3 animate-fade-in">
                 <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-semibold text-primary shrink-0 mt-0.5">
                   {getInitials(c.author)}
@@ -117,7 +148,7 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{c.author}</span>
-                    <span className="text-xs text-muted-foreground">{relativeTime(c.createdAt)}</span>
+                    <span className="text-xs text-muted-foreground">{relativeTime(c.created_at)}</span>
                   </div>
                   <p className="text-sm text-foreground/70 mt-0.5">{c.text}</p>
                 </div>
@@ -129,7 +160,7 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Add a comment..."
+              placeholder="Add a comment…"
               className="bg-muted border-border text-sm min-h-[60px]"
             />
           </div>
@@ -137,10 +168,10 @@ export function IssueDetailModal({ issue, open, onClose, onUpdate }: IssueDetail
             <Button
               size="sm"
               onClick={handleAddComment}
-              disabled={!comment.trim()}
+              disabled={!comment.trim() || postingComment}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              Post Comment
+              {postingComment ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Post Comment"}
             </Button>
           </div>
         </div>
